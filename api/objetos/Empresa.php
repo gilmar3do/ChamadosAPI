@@ -27,18 +27,28 @@ class Empresa {
     }
     
     // read empresas
-    function read(){
-
+    function queryBase($tipo, $key, $nome, $cnpj){
+        // create SQL based on HTTP method
+        switch ($tipo) {
+          case 'Listar':
+            $sql = "select p.id, p.nome, p.cnpj from ". $this->table_name ." p".($key?" WHERE id=$key":'')." ORDER BY p.nome DESC"; break;
+          case 'Atualizar':
+            $sql = "update ". $this->table_name ." p set (p.nome, p.cnpj) values($nome, $cnpj) where id=$key"; break;
+          case 'Editar':
+            $sql = "insert into ". $this->table_name ." (p.nome, p.cnpj) values($nome, $cnpj)"; break;
+          case 'Deletar':
+            $sql = "delete ". $this->table_name ." where id=$key"; break;
+        }
         // select all query
-        $query = "SELECT
+        /*$query = "SELECT
                     p.id, p.nome, p.cnpj
                 FROM
                     " . $this->table_name . " p
                 ORDER BY
-                    p.nome DESC";
+                    p.nome DESC";*/
 
         // prepare query statement
-        $stmt = $this->conn->prepare($query);
+        $stmt = $this->conn->prepare($sql);
 
         // execute query
         $stmt->execute();

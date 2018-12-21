@@ -1,15 +1,9 @@
 <?php
 
-/*
+/* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- */
-
-/**
- * Description of read
- *
- * @author gilmarf
  */
 // required headers
 header("Access-Control-Allow-Origin: *");
@@ -27,7 +21,7 @@ $db = $database->getConnection();
 $empresa = new Empresa($db);
 
 // query empresas
-$stmt = $empresa->queryBase('Listar', '', '', '');
+$stmt = $empresa->read();
 $num = $stmt->rowCount();
 
 // check if more than 0 record found
