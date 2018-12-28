@@ -27,32 +27,26 @@ class Empresa {
     }
     
     // read empresas
-    function queryBase($tipo, $key, $nome, $cnpj){
+    function queryBase($tipo){
         // create SQL based on HTTP method
         switch ($tipo) {
           case 'Listar':
-            $sql = "select p.id, p.nome, p.cnpj from ". $this->table_name ." p".($key?" WHERE id=$key":'')." ORDER BY p.nome DESC"; break;
+            $sql = "select p.id, p.nome, p.cnpj from ". $this->table_name ." p".($this->id?" WHERE id=$this->id":'')." ORDER BY p.nome DESC"; break;
           case 'Atualizar':
-            $sql = "update ". $this->table_name ." p set (p.nome, p.cnpj) values($nome, $cnpj) where id=$key"; break;
-          case 'Editar':
-            $sql = "insert into ". $this->table_name ." (p.nome, p.cnpj) values($nome, $cnpj)"; break;
+            $sql = "update ". $this->table_name ." set nome = '$this->nome', cnpj = '$this->cnpj' where id='$this->id'"; break;
+          case 'Adicionar':
+            $sql = "insert into ". $this->table_name ." (nome, cnpj) values('$this->nome', '$this->cnpj')"; break;
           case 'Deletar':
-            $sql = "delete ". $this->table_name ." where id=$key"; break;
+            $sql = "delete from ". $this->table_name ." where id='$this->id'"; break;
         }
-        // select all query
-        /*$query = "SELECT
-                    p.id, p.nome, p.cnpj
-                FROM
-                    " . $this->table_name . " p
-                ORDER BY
-                    p.nome DESC";*/
-
-        // prepare query statement
+        
         $stmt = $this->conn->prepare($sql);
-
-        // execute query
-        $stmt->execute();
-
+        try{
+            $stmt->execute();
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+        
         return $stmt;
     }
 }

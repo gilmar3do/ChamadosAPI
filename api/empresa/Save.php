@@ -8,6 +8,10 @@
 // required headers
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+ 
 
 // include database and object files
 include_once '../config/Database.php';
@@ -20,47 +24,51 @@ $db = $database->getConnection();
 // initialize object
 $empresa = new Empresa($db);
 
-// query empresas
-$stmt = $empresa->read();
-$num = $stmt->rowCount();
+// get posted data
+$data = json_decode(file_get_contents("php://input"));
+ 
+// make sure data is not empty
+if( !empty($data->nome) &&
+    !empty($data->cnpj))
+    {
+ 
+        // set product property values
+        $empresa->nome = $data->nome;
+        $empresa->cnpj = $data->cnpj;
+        $empresa->id = $data->id;
+        $tipo = 'Adicionar';
+        if(!empty($empresa->id)){
+            $tipo = 'Atualizar';
+        }
 
-// check if more than 0 record found
-if($num>0){
+        // create the product
+        if(!empty($empresa->queryBase($tipo))){
 
-    // empresas array
-    $empresas_arr=array();
-    $empresas_arr["records"]=array();
+            // set response code - 201 created
+            http_response_code(201);
 
-    // retrieve our table contents
-    // fetch() is faster than fetchAll()
-    // http://stackoverflow.com/questions/2770630/pdofetchall-vs-pdofetch-in-a-loop
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-        // extract row
-        // this will make $row['nome'] to
-        // just $nome only
-        extract($row);
+            // tell the user
+            echo json_encode(array("message" => "Empresa Criada!"));
+        }
 
-        $empresa_item=array(
-            "id" => $id,
-            "nome" => $nome,
-            "cnpj" => $cnpj
-        );
+        // if unable to create the product, tell the user
+        else{
 
-        array_push($empresas_arr["records"], $empresa_item);
+            // set response code - 503 service unavailable
+            http_response_code(503);
+
+            // tell the user
+            echo json_encode(array("message" => "Empresa nao criada!"));
+        }
     }
+ 
+    // tell the user data is incomplete
+else{
 
-    // set response code - 200 OK
-    http_response_code(200);
+        // set response code - 400 bad request
+        http_response_code(400);
 
-    // show empresas data in json format
-    echo json_encode($empresas_arr);
-}else{
-
-    // set response code - 404 Not found
-    http_response_code(404);
-
-    // tell the user no products found
-    echo json_encode(
-        array("message" => "Nenhuma empresa encontrada.")
-    );
-}
+        // tell the user
+        echo json_encode(array("message" => "Empresa Não criada. Dados imcompletos."));
+        echo json_encode(array("Erro" => $data->nome));
+    }

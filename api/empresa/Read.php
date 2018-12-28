@@ -27,7 +27,7 @@ $db = $database->getConnection();
 $empresa = new Empresa($db);
 
 // query empresas
-$stmt = $empresa->queryBase('Listar', '', '', '');
+$stmt = $empresa->queryBase('Listar');
 $num = $stmt->rowCount();
 
 // check if more than 0 record found
