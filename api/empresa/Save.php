@@ -35,9 +35,9 @@ if( !empty($data->nome) &&
         // set product property values
         $empresa->nome = $data->nome;
         $empresa->cnpj = $data->cnpj;
-        $empresa->id = $data->id;
         $tipo = 'Adicionar';
-        if(!empty($empresa->id)){
+        if(!empty($data->id)){
+            $empresa->id = $data->id;
             $tipo = 'Atualizar';
         }
 

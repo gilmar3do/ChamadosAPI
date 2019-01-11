@@ -22,7 +22,7 @@ $empresa = new Empresa($db);
 $data = json_decode(file_get_contents("php://input"));
  
 // set product id to be deleted
-$empresa->setId($data->id);
+$empresa->id = $data->id;
 print("Deleted $data->id rows.\n");
 $stmt = $empresa->queryBase('Deletar');
 $num = $stmt->rowCount();
